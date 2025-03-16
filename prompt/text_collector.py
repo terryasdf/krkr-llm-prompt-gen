@@ -26,8 +26,8 @@ class PromptTextCollector:
                     continue
 
                 NUM_LANG = len(lines[0][1])
-                last_role = None
-                concat = [''] * NUM_LANG
+                last_role = 'CHARACTER'
+                concat = [f'LANGUAGE_{i}' for i in range(NUM_LANG)]
                 for role, text in lines:
                     assert role
                     if role != last_role:
