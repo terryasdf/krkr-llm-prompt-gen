@@ -1,2 +1,4 @@
-scn/*
+__pycache__
+scn_files/*
 temp/*
+output/*
