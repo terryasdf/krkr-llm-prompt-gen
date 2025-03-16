@@ -17,6 +17,8 @@ class PromptTextCollector:
 
         with open(f'{self.output_dir}/prompts.csv', 'w', encoding='utf-8') as fw:
             csvwriter = csv.writer(fw)
+            has_written_header = False
+
             for file in glob.iglob(f'{self.bin_dir}/*.bin'):
                 with open(file, 'rb') as fr:
                     lines = pickle.load(fr)
@@ -26,12 +28,18 @@ class PromptTextCollector:
                     continue
 
                 NUM_LANG = len(lines[0][1])
-                last_role = 'CHARACTER'
-                concat = [f'LANGUAGE_{i}' for i in range(NUM_LANG)]
+                last_role = None
+                concat = [''] * NUM_LANG
+
+                if not has_written_header:
+                    csvwriter.writerow(['CHARACTER'] + [f'LANGUAGE_{i}' for i in range(NUM_LANG)])
+                    has_written_header = True
+
                 for role, text in lines:
                     assert role
                     if role != last_role:
-                        csvwriter.writerow([last_role] + concat)
+                        if last_role:
+                            csvwriter.writerow([last_role] + concat)
                         last_role = role
                         concat = [''] * NUM_LANG
                     for i in range(NUM_LANG):
