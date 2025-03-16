@@ -3,9 +3,9 @@ import glob
 import pickle
 import csv
 
-from text_preprocessor import preprocess_text
+from prompt.text_preprocessor import preprocess_text
 
-class PromptTextProcessor:
+class PromptTextCollector:
 
     def __init__(self, bin_dir, output_dir):
         self.bin_dir = bin_dir
