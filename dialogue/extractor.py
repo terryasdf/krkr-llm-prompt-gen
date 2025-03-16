@@ -27,12 +27,15 @@ class DialogueExtractor:
 
             texts_opt_list = scene['texts']
             for opt in texts_opt_list:
-                # character name
                 role = opt[0]
+                # Main character thinking, no one speaking
+                if not role:
+                    continue
 
-                # lang[0] -> displayed character name (might not be identical with the real one)
-                # lang[1] -> displayed text
-                # lang[2] -> char count
+                # opt[1][i][0] -> displayed character name (might not be identical with the real one)
+                # opt[1][i][1] -> displayed text
+                # opt[1][i][2] -> char count
+
                 texts = [lang[1] for lang in opt[1]]
                 lines.append((role, texts))
 
