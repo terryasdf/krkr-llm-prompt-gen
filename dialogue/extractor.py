@@ -27,35 +27,53 @@ class DialogueExtractor:
         with open(self.path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
+        num_lang = -1
         scenes = data['scenes']
         lines = []
-        for scene in scenes:
-            if 'texts' not in scene:
-                continue
-
-            texts_opt_list = scene['texts']
-            last_stage = get_stage(texts_opt_list[0])
-            END_LINE = (END_MARK, [''] * len(texts_opt_list[0][1]))
-            for opt in texts_opt_list:
-                role = opt[0]
-
-                stage = get_stage(opt)
-                if last_stage != stage:
-                    lines.append(END_LINE)
-                    last_stage = stage
-
-                # Main character thinking, no one speaking
-                if not role:
-                    if len(lines) and lines[-1][0] != END_MARK:
-                        lines.append(END_LINE)
+        try:
+            for scene in scenes:
+                if 'texts' not in scene:
                     continue
 
-                # opt[1][i][0] -> displayed character name (might not be identical with the real one)
-                # opt[1][i][1] -> displayed text
-                # opt[1][i][2] -> char count
+                texts_opt_list = scene['texts']
+                assert len(texts_opt_list)
+                last_stage = get_stage(texts_opt_list[0])
 
-                texts = [lang[1] for lang in opt[1]]
-                lines.append((role, texts))
+                if num_lang >= 0 and len(texts_opt_list[0][1]) != num_lang:
+                    raise IndexError()
+                num_lang = len(texts_opt_list[0][1])
+                END_LINE = (END_MARK, [''] * num_lang)
+
+                try:
+                    for opt in texts_opt_list:
+                        role = opt[0]
+
+                        stage = get_stage(opt)
+                        if last_stage != stage:
+                            lines.append(END_LINE)
+                            last_stage = stage
+
+                        # Main character thinking, no one speaking
+                        if not role:
+                            if len(lines) and lines[-1][0] != END_MARK:
+                                lines.append(END_LINE)
+                            continue
+
+
+                        # opt[1][i][0] -> displayed character name (might not be identical with the real one)
+                        # opt[1][i][1] -> displayed text
+                        # opt[1][i][2] -> char count
+
+                        texts = [lang[1] for lang in opt[1]]
+                        if len(opt[1]) != num_lang:
+                            raise IndexError()
+
+                        lines.append((role, texts))
+
+                except IndexError:
+                    print(f'Found language number mismatch in:\n\t{texts}\nSkipping current scene')
+        except IndexError:
+            print(f'Found language number mismatch in file:\n\t{self.path}Skipping current file')
 
         with open(f'{self.path}.bin', 'wb') as f:
             pickle.dump(lines, f)
