@@ -4,9 +4,10 @@ from dataset.text_collector import PromptTextCollector
 
 class DatasetGenerator:
     def __init__(self, scn_dir, temp_dir, output_dir):
+        bin_dir = f'{temp_dir}/bin'
         self.decompiler = SCNDecompiler(scn_dir, temp_dir)
-        self.bin_generator = DialogueBinGenerator(scn_dir, temp_dir)
-        self.text_processor = PromptTextCollector(temp_dir, output_dir)
+        self.bin_generator = DialogueBinGenerator(scn_dir, bin_dir)
+        self.text_processor = PromptTextCollector(bin_dir, output_dir)
 
     def generate(self):
         self.decompiler.decompile_scn()

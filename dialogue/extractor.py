@@ -42,7 +42,7 @@ class DialogueExtractor:
                 if num_lang >= 0 and len(texts_opt_list[0][1]) != num_lang:
                     raise IndexError()
                 num_lang = len(texts_opt_list[0][1])
-                END_LINE = (END_MARK, [''] * num_lang)
+                END_LINE = (END_MARK, [self.path] + [''] * (num_lang - 1))
 
                 try:
                     for opt in texts_opt_list:
@@ -50,7 +50,8 @@ class DialogueExtractor:
 
                         stage = get_stage(opt)
                         if last_stage != stage:
-                            lines.append(END_LINE)
+                            if len(lines) and lines[-1][0] != END_MARK:
+                                lines.append(END_LINE)
                             last_stage = stage
 
                         # Main character thinking, no one speaking
@@ -71,10 +72,16 @@ class DialogueExtractor:
                         lines.append((role, texts))
 
                 except IndexError:
+                    if len(lines) and lines[-1][0] != END_MARK:
+                            lines.append(END_LINE)
                     print(f'Found language number mismatch in:\n\t{texts}\nSkipping current scene')
         except IndexError:
+            if len(lines) and lines[-1][0] != END_MARK:
+                lines.append(END_LINE)
             print(f'Found language number mismatch in file:\n\t{self.path}Skipping current file')
 
+        if len(lines) and lines[-1][0] != END_MARK:
+            lines.append(END_LINE)
         with open(f'{self.path}.bin', 'wb') as f:
             pickle.dump(lines, f)
             print(f'Successfully saved pickled dialogues: {abspath(f.name)}')
