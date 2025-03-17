@@ -1,6 +1,6 @@
 import json
 import pickle
-from os.path import abspath
+import os
 
 END_MARK = '<END>'
 
@@ -18,7 +18,7 @@ class DialogueExtractor:
     def __init__(self, path):
         self.path = path
 
-    def extract(self):
+    def extract(self, bin_dir):
         """
         Returns a list of tuples, the first element of which is the character and
         second is a list of corresponding dialogues in all languages.
@@ -82,6 +82,6 @@ class DialogueExtractor:
 
         if len(lines) and lines[-1][0] != END_MARK:
             lines.append(END_LINE)
-        with open(f'{self.path}.bin', 'wb') as f:
+        with open(f'{bin_dir}/{os.path.split(self.path)[-1]}.bin', 'wb') as f:
             pickle.dump(lines, f)
-            print(f'Successfully saved pickled dialogues: {abspath(f.name)}')
+            print(f'Successfully saved pickled dialogues: {os.path.abspath(f.name)}')
