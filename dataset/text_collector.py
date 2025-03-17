@@ -3,7 +3,7 @@ import glob
 import pickle
 import csv
 
-from prompt.text_preprocessor import preprocess_text
+from dataset.text_preprocessor import preprocess_text
 
 class PromptTextCollector:
 
